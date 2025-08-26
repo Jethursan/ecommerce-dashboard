@@ -1,19 +1,20 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDRYUPJCc36jqhZt6c4mySED75XfCwngvI",
+  authDomain: "ecommerce-dashboard-b1cf0.firebaseapp.com",
+  projectId: "ecommerce-dashboard-b1cf0",
+  storageBucket: "ecommerce-dashboard-b1cf0.firebasestorage.app",
+  messagingSenderId: "857122672266",
+  appId: "1:857122672266:web:b709dc4c54cb8f2402e773",
+  measurementId: "G-RGS5FNRM9T"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// ✅ Verify connection
-console.log("Firebase connected:", app);
+console.log("🔥 Firebase connected:", app);
 
-export default app;
+export { db };
