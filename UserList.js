@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { Modal, Button } from "react-bootstrap";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,10 @@ function UserList() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Delete modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,17 +42,23 @@ function UserList() {
   };
 
 
+  // ✅ Handle delete modal open
+  const confirmDelete = (user) => {
+    setUserToDelete(user);
+    setShowDeleteModal(true);
+  };
+
   // ✅ Delete user
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        await deleteDoc(doc(db, "users", id));
-        setUsers(users.filter(user => user.id !== id));
-        alert("User deleted successfully!");
-      } catch (err) {
-        console.error(err);
-        alert("Error deleting user");
-      }
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+    try {
+      await deleteDoc(doc(db, "users", userToDelete.id));
+      setUsers(users.filter(user => user.id !== userToDelete.id));
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting user");
     }
   };
 
@@ -67,7 +78,6 @@ function UserList() {
       await updateDoc(userRef, { name, email, phone });
       setUsers(users.map(u => u.id === editingUser.id ? { ...u, name, email, phone } : u));
       setEditingUser(null);
-      alert("User updated successfully!");
     } catch (err) {
       console.error(err);
       alert("Error updating user");
@@ -104,7 +114,7 @@ function UserList() {
               <td>{user.phone}</td>
               <td>
                 <button className="btn btn-primary btn-sm me-2" onClick={() => handleEdit(user)}>Edit</button>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(user.id)}>Delete</button>
+                <button className="btn btn-danger btn-sm" onClick={() => confirmDelete(user)}>Delete</button>
               </td>
             </tr>
           ))}
@@ -135,6 +145,20 @@ function UserList() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete <b>{userToDelete?.name}</b>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
